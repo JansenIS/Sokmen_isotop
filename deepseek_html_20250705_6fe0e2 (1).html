@@ -1,0 +1,977 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Надел Сокмена: Кровь и Пыль Драхенланда</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        body {
+            background: #0f1a1f url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="100" height="100" viewBox="0 0 100 100"><rect width="100" height="100" fill="%230a1216"/><path d="M0 0L100 100M100 0L0 100" stroke="%23152a35" stroke-width="1"/></svg>');
+            color: #d9d2c5;
+            line-height: 1.6;
+            padding: 20px;
+            max-width: 1000px;
+            margin: 0 auto;
+        }
+        
+        .game-container {
+            display: grid;
+            grid-template-columns: 1fr 350px;
+            gap: 20px;
+            background: rgba(15, 25, 30, 0.8);
+            border: 1px solid #3a5a40;
+            border-radius: 8px;
+            padding: 20px;
+            box-shadow: 0 0 20px rgba(0, 0, 0, 0.5);
+        }
+        
+        header {
+            grid-column: 1 / -1;
+            text-align: center;
+            padding: 15px 0;
+            border-bottom: 2px solid #3a5a40;
+            margin-bottom: 20px;
+            background: rgba(20, 35, 45, 0.7);
+            border-radius: 8px;
+        }
+        
+        h1 {
+            color: #d9b779;
+            font-size: 2.2rem;
+            text-shadow: 0 0 5px rgba(217, 183, 121, 0.3);
+            letter-spacing: 1px;
+            margin-bottom: 10px;
+        }
+        
+        .subtitle {
+            color: #a9b8a5;
+            font-size: 1.1rem;
+            font-style: italic;
+        }
+        
+        .status-panel {
+            background: rgba(10, 20, 25, 0.7);
+            border: 1px solid #3a5a40;
+            border-radius: 8px;
+            padding: 15px;
+            margin-bottom: 20px;
+        }
+        
+        .season-display {
+            text-align: center;
+            font-size: 1.4rem;
+            color: #d9b779;
+            margin-bottom: 15px;
+            padding: 8px;
+            background: rgba(25, 45, 55, 0.6);
+            border-radius: 5px;
+            border: 1px solid #4d7a5b;
+        }
+        
+        .resources-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 12px;
+            margin-bottom: 15px;
+        }
+        
+        .resource {
+            background: rgba(25, 40, 50, 0.6);
+            border: 1px solid #3a5a40;
+            border-radius: 5px;
+            padding: 12px;
+            position: relative;
+        }
+        
+        .resource h3 {
+            color: #a9b8a5;
+            font-size: 1rem;
+            margin-bottom: 8px;
+            display: flex;
+            align-items: center;
+        }
+        
+        .resource h3::before {
+            content: "•";
+            margin-right: 8px;
+            color: #d9b779;
+        }
+        
+        .resource-value {
+            font-size: 1.4rem;
+            font-weight: bold;
+            color: #e0d0a0;
+        }
+        
+        .progress-bar {
+            height: 10px;
+            background: #1a2a30;
+            border-radius: 5px;
+            margin-top: 8px;
+            overflow: hidden;
+        }
+        
+        .progress-fill {
+            height: 100%;
+            border-radius: 5px;
+        }
+        
+        .filters .progress-fill { background: linear-gradient(90deg, #4a7b55, #6da67a); }
+        .land .progress-fill { background: linear-gradient(90deg, #8c6d3c, #d9b779); }
+        .field .progress-fill { background: linear-gradient(90deg, #4a7b55, #8cbc95); }
+        .son-rep .progress-fill { background: linear-gradient(90deg, #5a7b55, #8cbc95); }
+        
+        .actions-panel {
+            background: rgba(10, 20, 25, 0.7);
+            border: 1px solid #3a5a40;
+            border-radius: 8px;
+            padding: 15px;
+        }
+        
+        .actions-panel h2 {
+            color: #d9b779;
+            font-size: 1.3rem;
+            margin-bottom: 15px;
+            padding-bottom: 8px;
+            border-bottom: 1px solid #3a5a40;
+        }
+        
+        .actions-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 12px;
+        }
+        
+        .action-btn {
+            background: linear-gradient(to bottom, #2d4a3a, #1e3328);
+            color: #e0d0a0;
+            border: 1px solid #4d7a5b;
+            border-radius: 5px;
+            padding: 12px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 0.95rem;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 80px;
+        }
+        
+        .action-btn:hover {
+            background: linear-gradient(to bottom, #3a5a40, #2d4a3a);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+        }
+        
+        .action-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+        }
+        
+        .event-panel {
+            display: none;
+            background: rgba(10, 20, 25, 0.7);
+            border: 1px solid #5a3a3a;
+            border-radius: 8px;
+            padding: 15px;
+            margin-bottom: 20px;
+        }
+        
+        .event-title {
+            color: #d9b779;
+            font-size: 1.3rem;
+            margin-bottom: 15px;
+            padding-bottom: 8px;
+            border-bottom: 1px solid #5a3a3a;
+        }
+        
+        .event-content {
+            margin-bottom: 20px;
+            min-height: 100px;
+            font-size: 1.1rem;
+            line-height: 1.5;
+        }
+        
+        .choices-grid {
+            display: grid;
+            gap: 10px;
+        }
+        
+        .choice-btn {
+            background: linear-gradient(to bottom, #4a3a2d, #33281e);
+            color: #e0d0a0;
+            border: 1px solid #7a5b4d;
+            border-radius: 5px;
+            padding: 12px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 0.95rem;
+        }
+        
+        .choice-btn:hover {
+            background: linear-gradient(to bottom, #5a4a40, #4a3a2d);
+        }
+        
+        .log-panel {
+            background: rgba(10, 20, 25, 0.7);
+            border: 1px solid #3a3a5a;
+            border-radius: 8px;
+            padding: 15px;
+            height: 300px;
+            overflow-y: auto;
+        }
+        
+        .log-panel h2 {
+            color: #d9b779;
+            font-size: 1.3rem;
+            margin-bottom: 15px;
+            padding-bottom: 8px;
+            border-bottom: 1px solid #3a3a5a;
+            position: sticky;
+            top: 0;
+            background: rgba(10, 20, 25, 0.9);
+        }
+        
+        .log-content {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+        
+        .log-entry {
+            padding: 8px;
+            border-radius: 5px;
+            font-size: 0.95rem;
+            border-left: 3px solid #3a5a40;
+            background: rgba(25, 40, 50, 0.4);
+        }
+        
+        .log-entry.warning {
+            border-left-color: #d9b779;
+            background: rgba(50, 40, 25, 0.4);
+        }
+        
+        .log-entry.danger {
+            border-left-color: #b74d4d;
+            background: rgba(50, 25, 25, 0.4);
+        }
+        
+        .log-entry.success {
+            border-left-color: #5a7b55;
+            background: rgba(25, 50, 25, 0.4);
+        }
+        
+        .family-info {
+            display: flex;
+            justify-content: space-around;
+            margin-top: 15px;
+            padding-top: 15px;
+            border-top: 1px solid #3a5a40;
+        }
+        
+        .family-member {
+            text-align: center;
+            padding: 8px;
+            background: rgba(25, 40, 50, 0.4);
+            border-radius: 5px;
+            border: 1px solid #3a5a40;
+            min-width: 100px;
+        }
+        
+        .law-reference {
+            font-size: 0.8rem;
+            color: #a9b8a5;
+            margin-top: 5px;
+            font-style: italic;
+        }
+        
+        .days-counter {
+            text-align: center;
+            margin-top: 10px;
+            font-size: 0.9rem;
+            color: #d9b779;
+        }
+        
+        .game-over {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.9);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+            color: #d9b779;
+            text-align: center;
+            padding: 20px;
+        }
+        
+        .game-over h2 {
+            font-size: 3rem;
+            margin-bottom: 20px;
+            text-shadow: 0 0 10px rgba(217, 183, 121, 0.5);
+        }
+        
+        .game-over p {
+            font-size: 1.5rem;
+            max-width: 600px;
+            margin-bottom: 30px;
+            line-height: 1.6;
+        }
+        
+        .restart-btn {
+            background: linear-gradient(to bottom, #2d4a3a, #1e3328);
+            color: #e0d0a0;
+            border: 1px solid #4d7a5b;
+            border-radius: 5px;
+            padding: 15px 30px;
+            font-size: 1.2rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .restart-btn:hover {
+            background: linear-gradient(to bottom, #3a5a40, #2d4a3a);
+            transform: translateY(-3px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+        }
+        
+        @media (max-width: 768px) {
+            .game-container {
+                grid-template-columns: 1fr;
+            }
+            
+            .resources-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="game-container">
+        <header>
+            <h1>НАДЕЛ СОКМЕНА</h1>
+            <div class="subtitle">Кровь и Пыль Драхенланда</div>
+            <div class="subtitle">484 год от Выхода из Бункеров</div>
+        </header>
+        
+        <div class="main-content">
+            <div class="status-panel">
+                <div class="season-display">Весна 484 года (День 1)</div>
+                
+                <div class="resources-grid">
+                    <div class="resource filters">
+                        <h3>Фильтр</h3>
+                        <div class="resource-value">78%</div>
+                        <div class="progress-bar">
+                            <div class="progress-fill" style="width: 78%"></div>
+                        </div>
+                        <div class="law-reference">§4 Правды Земельной</div>
+                    </div>
+                    
+                    <div class="resource land">
+                        <h3>Чистота земли</h3>
+                        <div class="resource-value">85%</div>
+                        <div class="progress-bar">
+                            <div class="progress-fill" style="width: 85%"></div>
+                        </div>
+                        <div class="law-reference">§5 Правды Земельной</div>
+                    </div>
+                    
+                    <div class="resource">
+                        <h3>ДСМ</h3>
+                        <div class="resource-value">42</div>
+                        <div class="law-reference">§1 Правды Земельной</div>
+                    </div>
+                    
+                    <div class="resource">
+                        <h3>Зерно</h3>
+                        <div class="resource-value">5 мер</div>
+                        <div class="law-reference">§10 Правды Земельной</div>
+                    </div>
+                    
+                    <div class="resource">
+                        <h3>Вилладиум</h3>
+                        <div class="resource-value">0 г</div>
+                        <div class="law-reference">§5 Правды Земельной</div>
+                    </div>
+                    
+                    <div class="resource field">
+                        <h3>Состояние теплицы</h3>
+                        <div class="resource-value">92%</div>
+                        <div class="progress-bar">
+                            <div class="progress-fill" style="width: 92%"></div>
+                        </div>
+                        <div class="law-reference">§16 Правды Земельной</div>
+                    </div>
+                    
+                    <div class="resource">
+                        <h3>Репутация</h3>
+                        <div class="resource-value">Нейтральная</div>
+                        <div class="law-reference">§26 Правды Земельной</div>
+                    </div>
+                    
+                    <div class="resource">
+                        <h3>До бури</h3>
+                        <div class="resource-value">3 дня</div>
+                        <div class="law-reference">§44 Правды Земельной</div>
+                    </div>
+                </div>
+                
+                <div class="days-counter">Всего прошло дней: 1</div>
+            </div>
+            
+            <div class="actions-panel">
+                <h2>Действия (занимают 7 дней)</h2>
+                <div class="actions-grid">
+                    <button class="action-btn">Обрабатывать теплицу</button>
+                    <button class="action-btn">Чинить фильтры</button>
+                    <button class="action-btn">Работать на Дворянина</button>
+                    <button class="action-btn">Охотиться в пустошах</button>
+                    <button class="action-btn">Участвовать в Ополчении</button>
+                    <button class="action-btn">Торговать в городе</button>
+                    <button class="action-btn">Воспитывать сына</button>
+                    <button class="action-btn" disabled>Обратиться к Жрецу</button>
+                </div>
+            </div>
+            
+            <div class="event-panel">
+                <div class="event-title">Событие</div>
+                <div class="event-content">
+                    Барон фон Борк требует уплаты чинша - 3 меры зерна до конца сезона. 
+                    Если не уплатить, он пришлёт своих людей конфисковать урожай.
+                </div>
+                <div class="choices-grid">
+                    <button class="choice-btn">Отдать требуемое зерно</button>
+                    <button class="choice-btn">Жаловаться Жрецу (§18)</button>
+                    <button class="choice-btn">Утаить часть зерна (риск)</button>
+                </div>
+            </div>
+            
+            <div class="family-info">
+                <div class="family-member">
+                    <div>Жена</div>
+                    <div>Анна</div>
+                    <div>Здоровье: Хорошее</div>
+                </div>
+                <div class="family-member">
+                    <div>Сын</div>
+                    <div>Томас</div>
+                    <div class="resource son-rep" style="margin-top: 8px;">
+                        <h3>Отношение к отцу</h3>
+                        <div class="resource-value">50%</div>
+                        <div class="progress-bar">
+                            <div class="progress-fill" style="width: 50%"></div>
+                        </div>
+                        <div class="law-reference">§30 Правды Земельной</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="log-panel">
+            <h2>Хроника надела</h2>
+            <div class="log-content">
+                <div class="log-entry">День 1: Начало управления наделом. Земля в хорошем состоянии, но фильтры изношены.</div>
+                <div class="log-entry">День 1: Барон требует уплаты чинша - 3 меры зерна.</div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Игровое состояние
+        const gameState = {
+            year: 484,
+            season: 0, // 0: Весна, 1: Лето, 2: Осень, 3: Зима
+            daysInSeason: 1,
+            totalDays: 1,
+            filters: 78,
+            spareFilter: 0,
+            dsm: 42,
+            grain: 5,
+            villadium: 0,
+            landPurity: 85,
+            reputation: 0,
+            wife: true,
+            children: [{gender: 'male', sonReputation: 50, present: true}],
+            fieldCondition: 92,
+            debt: 0,
+            daysToStorm: 3,
+            currentEvent: 'tribute',
+            lastSonCareDay: 0,
+            log: [
+                "День 1: Начало управления наделом. Земля в хорошем состоянии, но фильтры изношены.",
+                "День 1: Барон требует уплаты чинша - 3 меры зерна."
+            ],
+            gameOver: false
+        };
+
+        // Сезоны
+        const seasons = ["Весна", "Лето", "Осень", "Зима"];
+        const SEASON_LENGTH = 90; // дней в сезоне
+        const YEAR_LENGTH = 360; // дней в году
+        const DAYS_PER_ACTION = 7; // дней на действие
+        
+        // Обновление интерфейса
+        function updateUI() {
+            if (gameState.gameOver) return;
+            
+            // Обновляем отображение сезона и года
+            document.querySelector('.season-display').textContent = 
+                `${seasons[gameState.season]} ${gameState.year} года (День ${gameState.daysInSeason})`;
+            
+            // Обновляем ресурсы
+            document.querySelector('.filters .resource-value').textContent = `${gameState.filters}%`;
+            document.querySelector('.filters .progress-fill').style.width = `${gameState.filters}%`;
+            
+            document.querySelector('.land .resource-value').textContent = `${gameState.landPurity}%`;
+            document.querySelector('.land .progress-fill').style.width = `${gameState.landPurity}%`;
+            
+            document.querySelector('.field .resource-value').textContent = `${gameState.fieldCondition}%`;
+            document.querySelector('.field .progress-fill').style.width = `${gameState.fieldCondition}%`;
+            
+            document.querySelectorAll('.resource')[2].querySelector('.resource-value').textContent = gameState.dsm;
+            document.querySelectorAll('.resource')[3].querySelector('.resource-value').textContent = `${gameState.grain} мер`;
+            document.querySelectorAll('.resource')[4].querySelector('.resource-value').textContent = `${gameState.villadium} г`;
+            
+            // Репутация
+            let reputationText = "Нейтральная";
+            if (gameState.reputation > 30) reputationText = "Хорошая";
+            if (gameState.reputation > 60) reputationText = "Отличная";
+            if (gameState.reputation < -30) reputationText = "Плохая";
+            if (gameState.reputation < -60) reputationText = "Ужасная";
+            document.querySelectorAll('.resource')[6].querySelector('.resource-value').textContent = reputationText;
+            
+            // Дни до бури
+            document.querySelectorAll('.resource')[7].querySelector('.resource-value').textContent = 
+                `${gameState.daysToStorm} ${getDayText(gameState.daysToStorm)}`;
+            
+            // Отношение сына к отцу
+            if (gameState.children.length > 0 && gameState.children[0].present) {
+                const son = gameState.children[0];
+                document.querySelector('.son-rep .resource-value').textContent = `${son.sonReputation}%`;
+                document.querySelector('.son-rep .progress-fill').style.width = `${son.sonReputation}%`;
+            } else {
+                document.querySelector('.family-member:last-child').innerHTML = `
+                    <div>Сын</div>
+                    <div>Томас</div>
+                    <div style="color: #b74d4d; font-weight: bold;">Ушел в ополчение</div>
+                `;
+            }
+            
+            // Общее количество дней
+            document.querySelector('.days-counter').textContent = `Всего прошло дней: ${gameState.totalDays}`;
+            
+            // Лог событий
+            const logContent = document.querySelector('.log-content');
+            logContent.innerHTML = '';
+            
+            gameState.log.slice().reverse().forEach(entry => {
+                const logEntry = document.createElement('div');
+                logEntry.className = 'log-entry';
+                
+                if (entry.includes('требует') || entry.includes('риск') || entry.includes('ушел') || entry.includes('пренебрег')) {
+                    logEntry.classList.add('warning');
+                } else if (entry.includes('повредив') || entry.includes('опасно') || entry.includes('покинул') || entry.includes('Буря') || entry.includes('погибли')) {
+                    logEntry.classList.add('danger');
+                } else if (entry.includes('успех') || entry.includes('повысилась') || entry.includes('гордится') || entry.includes('улучшилось')) {
+                    logEntry.classList.add('success');
+                }
+                
+                logEntry.textContent = entry;
+                logContent.appendChild(logEntry);
+            });
+
+            // Показать/скрыть панель событий
+            if (gameState.currentEvent) {
+                document.querySelector('.event-panel').style.display = 'block';
+            } else {
+                document.querySelector('.event-panel').style.display = 'none';
+            }
+        }
+        
+        // Функция для правильного склонения слова "день"
+        function getDayText(days) {
+            if (days % 10 === 1 && days % 100 !== 11) return "день";
+            if (days % 10 >= 2 && days % 10 <= 4 && (days % 100 < 10 || days % 100 >= 20)) 
+                return "дня";
+            return "дней";
+        }
+        
+        // Инициализация игры
+        document.addEventListener('DOMContentLoaded', () => {
+            updateUI();
+            
+            // Обработчики для кнопок действий
+            document.querySelectorAll('.action-btn').forEach(button => {
+                if (!button.disabled) {
+                    button.addEventListener('click', function() {
+                        if (gameState.gameOver) return;
+                        const action = this.textContent;
+                        handleAction(action);
+                    });
+                }
+            });
+            
+            // Обработчики для кнопок выбора
+            document.querySelectorAll('.choice-btn').forEach(button => {
+                button.addEventListener('click', function() {
+                    if (gameState.gameOver) return;
+                    const choice = this.textContent;
+                    handleChoice(choice);
+                });
+            });
+        });
+        
+        // Обработка действий
+        function handleAction(action) {
+            let message = "";
+            
+            switch(action) {
+                case "Обрабатывать теплицу":
+                    if (gameState.villadium > 0) {
+                        const grainYield = Math.floor(5 + Math.random() * 6);
+                        gameState.grain += grainYield;
+                        gameState.villadium = 0;
+                        gameState.landPurity = Math.max(0, gameState.landPurity - 10);
+                        message = `Вы обработали теплицу с вилладиумом. Собрано ${grainYield} мер зерна. Чистота земли снизилась.`;
+                    } else {
+                        const grainYield = Math.floor(3 + Math.random() * 4);
+                        gameState.grain += grainYield;
+                        message = `Вы обработали теплицу. Собрано ${grainYield} мер зерна.`;
+                    }
+                    gameState.fieldCondition = Math.max(0, gameState.fieldCondition - 2);
+                    break;
+                    
+                case "Чинить фильтры":
+                    if (gameState.spareFilter > 0) {
+                        gameState.filters = 100;
+                        gameState.spareFilter--;
+                        message = "Вы установили запасной фильтр. Фильтр восстановлен до 100%.";
+                    } else if (gameState.dsm >= 30) {
+                        gameState.filters = Math.min(100, gameState.filters + 40);
+                        gameState.dsm -= 30;
+                        message = "Вы починили фильтр. Эффективность повышена.";
+                    } else {
+                        message = "У вас недостаточно ДСМ для ремонта фильтра и нет запасного.";
+                    }
+                    break;
+                    
+                case "Работать на Дворянина":
+                    const income = 20 + Math.floor(Math.random() * 21);
+                    gameState.dsm += income;
+                    message = `Вы отработали неделю у Дворянина. Получено ${income} ДСМ.`;
+                    
+                    // Риск травмы
+                    if (Math.random() < 0.2) {
+                        message += " Вы получили травму на работе.";
+                        gameState.fieldCondition = Math.max(0, gameState.fieldCondition - 10);
+                    }
+                    break;
+                    
+                case "Охотиться в пустошах":
+                    const huntResult = Math.random();
+                    if (huntResult < 0.6) {
+                        const villadiumFound = 5 + Math.floor(Math.random() * 11);
+                        gameState.villadium += villadiumFound;
+                        message = `Вы нашли ${villadiumFound}г вилладиума во время охоты.`;
+                    } else if (huntResult < 0.85) {
+                        const dsmFound = 15 + Math.floor(Math.random() * 26);
+                        gameState.dsm += dsmFound;
+                        message = `Вы нашли брошенный лагерь и нашли ${dsmFound} ДСМ.`;
+                    } else {
+                        message = "Вы вернулись без добычи. В пустошах было опасно.";
+                        gameState.filters = Math.max(0, gameState.filters - 15);
+                    }
+                    break;
+                    
+                case "Участвовать в Ополчении":
+                    gameState.reputation += 15;
+                    const opolcheniePay = 25 + Math.floor(Math.random() * 26);
+                    gameState.dsm += opolcheniePay;
+                    message = `Вы служили неделю в ополчении. Репутация повышена. Получено ${opolcheniePay} ДСМ.`;
+                    
+                    // Риск травмы
+                    if (Math.random() < 0.3) {
+                        message += " Вы получили ранение в стычке с мутантами.";
+                        gameState.filters = Math.max(0, gameState.filters - 20);
+                    }
+                    break;
+                    
+                case "Торговать в городе":
+                    if (gameState.grain >= 2) {
+                        const grainSold = 2;
+                        const income = 15 + Math.floor(Math.random() * 11);
+                        gameState.grain -= grainSold;
+                        gameState.dsm += income;
+                        message = `Вы продали 2 меры зерна за ${income} ДСМ.`;
+                    } else if (gameState.villadium >= 5) {
+                        const villadiumSold = 5;
+                        const income = 40 + Math.floor(Math.random() * 21);
+                        gameState.villadium -= villadiumSold;
+                        gameState.dsm += income;
+                        message = `Вы продали 5г вилладиума за ${income} ДСМ.`;
+                    } else {
+                        message = "У вас нет товаров для торговли.";
+                    }
+                    break;
+                    
+                case "Воспитывать сына":
+                    if (gameState.children.length > 0 && gameState.children[0].present) {
+                        const son = gameState.children[0];
+                        const repIncrease = 10 + Math.floor(Math.random() * 16);
+                        son.sonReputation = Math.min(100, son.sonReputation + repIncrease);
+                        message = `Вы провели неделю с сыном. Его отношение к вам улучшилось на ${repIncrease}%.`;
+                        gameState.lastSonCareDay = gameState.totalDays;
+                    } else {
+                        message = "Ваш сын покинул семью.";
+                    }
+                    break;
+            }
+            
+            // Добавляем запись в лог
+            addToLog(`День ${gameState.totalDays}: ${message}`);
+            
+            // Проверка на поражение
+            if (gameState.filters <= 0) {
+                gameOver("Система фильтров полностью вышла из строя! Вы и ваша семья погибли от радиации.");
+                return;
+            }
+            
+            if (gameState.landPurity <= 0) {
+                gameOver("Земля полностью отравлена! Выращивать что-либо невозможно.");
+                return;
+            }
+            
+            // Переходим к следующему периоду
+            advanceTime();
+        }
+        
+        // Обработка выбора в событиях
+        function handleChoice(choice) {
+            let message = "";
+            
+            if (gameState.currentEvent === 'tribute') {
+                if (choice.includes("Отдать")) {
+                    if (gameState.grain >= 3) {
+                        gameState.grain -= 3;
+                        message = "Вы отдали барону 3 меры зерна. Чинш уплачен.";
+                    } else {
+                        const deficit = 3 - gameState.grain;
+                        gameState.grain = 0;
+                        gameState.debt += deficit * 15;
+                        message = `Вы отдали всё зерно, но этого недостаточно. Долг: ${gameState.debt} ДСМ.`;
+                    }
+                } else if (choice.includes("Жаловаться")) {
+                    if (Math.random() < 0.4) {
+                        message = "Жрец встал на вашу сторону! Барон отозвал требование.";
+                        gameState.reputation += 10;
+                    } else {
+                        message = "Жрец отказался помогать. Пришлось отдать зерно.";
+                        gameState.grain = Math.max(0, gameState.grain - 3);
+                        gameState.reputation -= 5;
+                        
+                        // Сын не одобряет неудачу
+                        if (gameState.children.length > 0 && gameState.children[0].present) {
+                            gameState.children[0].sonReputation -= 10;
+                        }
+                    }
+                } else if (choice.includes("Утаить")) {
+                    if (Math.random() < 0.7) {
+                        message = "Вам удалось утаить часть зерна. Барон не заметил.";
+                        gameState.grain = Math.max(0, gameState.grain - 2);
+                    } else {
+                        message = "Барон обнаружил обман! Конфисковано всё зерно и штраф 20 ДСМ.";
+                        gameState.grain = 0;
+                        gameState.dsm = Math.max(0, gameState.dsm - 20);
+                        gameState.reputation -= 15;
+                        
+                        // Сын стыдится отца за обман
+                        if (gameState.children.length > 0 && gameState.children[0].present) {
+                            gameState.children[0].sonReputation -= 20;
+                        }
+                    }
+                }
+                
+                // Сбрасываем событие
+                gameState.currentEvent = null;
+                document.querySelector('.event-panel').style.display = 'none';
+                
+                // Добавляем запись в лог
+                addToLog(`День ${gameState.totalDays}: ${message}`);
+                
+                // Проверка сына
+                checkSonReputation();
+                
+                updateUI(); // Обновляем интерфейс после выбора
+            }
+        }
+        
+        // Проверка репутации сына
+        function checkSonReputation() {
+            if (gameState.children.length > 0 && gameState.children[0].present) {
+                const son = gameState.children[0];
+                if (son.sonReputation < 20) {
+                    son.present = false;
+                    addToLog(`День ${gameState.totalDays}: Ваш сын Томас, разочаровавшись в вас, ушел в ополчение и покинул семью.`);
+                }
+            }
+        }
+        
+        // Продвижение времени
+        function advanceTime() {
+            // Тратим 7 дней на действие
+            gameState.totalDays += DAYS_PER_ACTION;
+            gameState.daysInSeason += DAYS_PER_ACTION;
+            gameState.daysToStorm -= DAYS_PER_ACTION;
+            
+            // Проверка смены сезона
+            if (gameState.daysInSeason >= SEASON_LENGTH) {
+                gameState.season = (gameState.season + 1) % 4;
+                gameState.daysInSeason = gameState.daysInSeason - SEASON_LENGTH;
+                
+                if (gameState.season === 0) {
+                    gameState.year++;
+                    // Проверка на конец игры через 5 лет
+                    if (gameState.year >= 489) {
+                        endGame();
+                        return;
+                    }
+                }
+                
+                // Случайные события в начале сезона
+                if (gameState.season === 0 && Math.random() < 0.6) { // Весна
+                    gameState.currentEvent = 'tribute';
+                    document.querySelector('.event-content').textContent = 
+                        "Барон фон Борк требует уплаты чинша - 3 меры зерна до конца сезона. " + 
+                        "Если не уплатить, он пришлёт своих людей конфисковать урожай.";
+                }
+            }
+            
+            // Проверка на бурю
+            if (gameState.daysToStorm <= 0) {
+                stormEvent();
+                gameState.daysToStorm = 30 + Math.floor(Math.random() * 10); // 30-40 дней до следующей бури
+            }
+            
+            // Проверка сына - если давно не проводили время
+            if (gameState.children.length > 0 && gameState.children[0].present) {
+                const daysSinceLastCare = gameState.totalDays - gameState.lastSonCareDay;
+                if (daysSinceLastCare > 30) {
+                    const repDecrease = 5 + Math.floor(Math.random() * 6); // 5-10%
+                    gameState.children[0].sonReputation = Math.max(0, gameState.children[0].sonReputation - repDecrease);
+                    addToLog(`День ${gameState.totalDays}: Сын чувствует, что вы им пренебрегаете. Отношение ухудшилось на ${repDecrease}%.`);
+                    
+                    // Проверка, не ушел ли сын
+                    checkSonReputation();
+                }
+            }
+            
+            // Естественная порча фильтров
+            gameState.filters = Math.max(0, gameState.filters - (1 + Math.floor(Math.random() * 3)));
+            
+            // Проверка на поражение
+            if (gameState.filters <= 0) {
+                gameOver("Система фильтров полностью вышла из строя! Вы и ваша семья погибли от радиации.");
+                return;
+            }
+            
+            if (gameState.landPurity <= 0) {
+                gameOver("Земля полностью отравлена! Выращивать что-либо невозможно.");
+                return;
+            }
+            
+            updateUI();
+        }
+        
+        // Событие бури
+        function stormEvent() {
+            // Урон от бури
+            const damageToField = 5 + Math.floor(Math.random() * 11); // 5-15%
+            gameState.fieldCondition = Math.max(0, gameState.fieldCondition - damageToField);
+
+            const damageToFilters = 10 + Math.floor(Math.random() * 21); // 10-30%
+            gameState.filters = Math.max(0, gameState.filters - damageToFilters);
+
+            addToLog(`День ${gameState.totalDays}: Буря! Повреждения: теплица -${damageToField}%, фильтры -${damageToFilters}%.`);
+            
+            // Проверка на поражение после бури
+            if (gameState.filters <= 0 || gameState.landPurity <= 0) {
+                if (gameState.filters <= 0) {
+                    gameOver("Система фильтров разрушена бурей! Вы и ваша семья погибли от радиации.");
+                } else {
+                    gameOver("Буря полностью отравила землю! Выращивать что-либо невозможно.");
+                }
+            }
+        }
+        
+        // Конец игры (победа)
+        function endGame() {
+            let message = "";
+            if (gameState.children.length > 0 && gameState.children[0].present && gameState.children[0].sonReputation >= 50) {
+                message = "Вы успешно передали надел сыну после 5 лет правления!";
+            } else if (gameState.children.length > 0 && gameState.children[0].present) {
+                message = "Сын отказался принять надел из-за плохих отношений с вами.";
+            } else {
+                message = "Вы не смогли вырастить наследника. Надел переходит общине.";
+            }
+            
+            gameOver(message);
+        }
+        
+        // Поражение
+        function gameOver(reason) {
+            gameState.gameOver = true;
+            
+            // Скрываем игровые элементы
+            document.querySelector('.game-container').style.opacity = '0.3';
+            document.querySelectorAll('.action-btn, .choice-btn').forEach(btn => {
+                btn.disabled = true;
+            });
+            
+            // Создаем экран поражения
+            const gameOverScreen = document.createElement('div');
+            gameOverScreen.className = 'game-over';
+            gameOverScreen.innerHTML = `
+                <h2>${gameState.filters <= 0 || gameState.landPurity <= 0 ? 'ПОРАЖЕНИЕ' : 'ИГРА ОКОНЧЕНА'}</h2>
+                <p>${reason}</p>
+                <p>Вы продержались ${gameState.totalDays} дней</p>
+                <button class="restart-btn">Начать заново</button>
+            `;
+            document.body.appendChild(gameOverScreen);
+            
+            // Обработчик для кнопки перезапуска
+            gameOverScreen.querySelector('.restart-btn').addEventListener('click', () => {
+                location.reload();
+            });
+            
+            // Добавляем запись в лог
+            addToLog(`День ${gameState.totalDays}: ${reason}`);
+        }
+        
+        // Добавление записи в лог
+        function addToLog(message) {
+            gameState.log.push(message);
+            if (gameState.log.length > 50) {
+                gameState.log.shift();
+            }
+            updateUI();
+        }
+    </script>
+</body>
+</html>
