@@ -441,6 +441,7 @@
                 <div class="actions-grid">
                     <button class="action-btn">Обрабатывать теплицу</button>
                     <button class="action-btn">Чинить фильтры</button>
+                    <button class="action-btn">Чинить теплицу</button>
                     <button class="action-btn">Работать на Дворянина</button>
                     <button class="action-btn">Охотиться в пустошах</button>
                     <button class="action-btn">Участвовать в Ополчении</button>
@@ -671,7 +672,17 @@
                         message = "У вас недостаточно ДСМ для ремонта фильтра и нет запасного.";
                     }
                     break;
-                    
+
+                case "Чинить теплицу":
+                    if (gameState.dsm >= 20) {
+                        gameState.fieldCondition = Math.min(100, gameState.fieldCondition + 30);
+                        gameState.dsm -= 20;
+                        message = "Вы починили теплицу. Состояние улучшено.";
+                    } else {
+                        message = "У вас недостаточно ДСМ для ремонта теплицы.";
+                    }
+                    break;
+
                 case "Работать на Дворянина":
                     const income = 20 + Math.floor(Math.random() * 21);
                     gameState.dsm += income;
